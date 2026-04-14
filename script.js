@@ -1,4 +1,7 @@
 const STORAGE_KEY = "portfolio-items-v1";
+const DB_NAME = "portfolio-media-db";
+const DB_VERSION = 1;
+const IMAGE_STORE = "portfolio-images";
 
 const form = document.getElementById("project-form");
 const grid = document.getElementById("portfolio-grid");
@@ -20,8 +23,10 @@ const editUrl = document.getElementById("edit-url");
 let works = loadWorks();
 let activeImage = "";
 let editingId = null;
+let dbPromise = null;
 
 render();
+hydrateImageUrls();
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -44,7 +49,7 @@ form.addEventListener("submit", (event) => {
 });
 
 fileInput.addEventListener("change", (event) => {
-  addFiles(event.target.files);
+  void addFiles(event.target.files);
   fileInput.value = "";
 });
 
@@ -60,13 +65,14 @@ dropZone.addEventListener("dragleave", () => {
 dropZone.addEventListener("drop", (event) => {
   event.preventDefault();
   dropZone.classList.remove("drag-over");
-  addFiles(event.dataTransfer.files);
+  void addFiles(event.dataTransfer.files);
 });
 
 clearAllBtn.addEventListener("click", () => {
   if (!works.length) return;
   if (!window.confirm("Clear all projects?")) return;
   works = [];
+  void clearAllImages();
   render();
   saveWorks();
 });
@@ -93,30 +99,40 @@ editForm.addEventListener("submit", (event) => {
   editingId = null;
 });
 
-function addFiles(fileList) {
+async function addFiles(fileList) {
   if (!fileList || !fileList.length) return;
+  let added = false;
 
-  Array.from(fileList).forEach((file) => {
-    if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const imageData = `${reader.result || ""}`;
-      const title = file.name.replace(/\.[^.]+$/, "");
-      const item = {
-        id: crypto.randomUUID(),
-        title: title || "Untitled work",
-        category: "Uploaded Work",
-        description: "Click edit to add project details.",
-        url: "",
-        image: imageData,
-      };
-      activeImage = imageData;
-      works.unshift(item);
-      render();
-      saveWorks();
+  for (const file of Array.from(fileList)) {
+    if (!file.type.startsWith("image/")) continue;
+    const imageId = crypto.randomUUID();
+    try {
+      await saveImageFile(imageId, file);
+    } catch (error) {
+      console.error("Unable to store image:", error);
+      window.alert("Could not store one of your images. Please try a smaller file.");
+      continue;
+    }
+
+    const title = file.name.replace(/\.[^.]+$/, "");
+    const item = {
+      id: crypto.randomUUID(),
+      title: title || "Untitled work",
+      category: "Uploaded Work",
+      description: "Click edit to add project details.",
+      url: "",
+      imageId,
     };
-    reader.readAsDataURL(file);
-  });
+
+    works.unshift(item);
+    added = true;
+  }
+
+  if (added) {
+    render();
+    saveWorks();
+    void hydrateImageUrls();
+  }
 }
 
 function render() {
@@ -134,7 +150,7 @@ function render() {
     const deleteBtn = card.querySelector(".delete-btn");
     const editBtn = card.querySelector(".edit-btn");
 
-    image.src = work.image || placeholderSvg(work.title || "Work");
+    image.src = work.imagePreviewUrl || work.image || placeholderSvg(work.title || "Work");
     image.alt = work.title || "Portfolio work";
     category.textContent = work.category || "Uncategorized";
     title.textContent = work.title || "Untitled project";
@@ -148,6 +164,9 @@ function render() {
     }
 
     deleteBtn.addEventListener("click", () => {
+      if (work.imageId) {
+        void deleteImageFile(work.imageId);
+      }
       works = works.filter((item) => item.id !== work.id);
       render();
       saveWorks();
@@ -226,13 +245,81 @@ function loadWorks() {
 
 function saveWorks() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(works));
+    const serializableWorks = works.map(({ imagePreviewUrl, ...work }) => work);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableWorks));
   } catch (error) {
     console.error("Unable to save portfolio data:", error);
     window.alert(
       "Your browser storage is full, so this image can't be saved permanently. Try smaller images or clear some projects."
     );
   }
+}
+
+async function hydrateImageUrls() {
+  await Promise.all(
+    works.map(async (work) => {
+      if (!work.imageId || work.imagePreviewUrl) return;
+      const blob = await getImageFile(work.imageId);
+      if (!blob) return;
+      work.imagePreviewUrl = URL.createObjectURL(blob);
+    })
+  );
+  render();
+}
+
+function getDatabase() {
+  if (dbPromise) return dbPromise;
+
+  dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IMAGE_STORE)) {
+        db.createObjectStore(IMAGE_STORE);
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+
+  return dbPromise;
+}
+
+function requestToPromise(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveImageFile(imageId, file) {
+  const db = await getDatabase();
+  const tx = db.transaction(IMAGE_STORE, "readwrite");
+  const store = tx.objectStore(IMAGE_STORE);
+  await requestToPromise(store.put(file, imageId));
+}
+
+async function getImageFile(imageId) {
+  const db = await getDatabase();
+  const tx = db.transaction(IMAGE_STORE, "readonly");
+  const store = tx.objectStore(IMAGE_STORE);
+  return requestToPromise(store.get(imageId));
+}
+
+async function deleteImageFile(imageId) {
+  const db = await getDatabase();
+  const tx = db.transaction(IMAGE_STORE, "readwrite");
+  const store = tx.objectStore(IMAGE_STORE);
+  await requestToPromise(store.delete(imageId));
+}
+
+async function clearAllImages() {
+  const db = await getDatabase();
+  const tx = db.transaction(IMAGE_STORE, "readwrite");
+  const store = tx.objectStore(IMAGE_STORE);
+  await requestToPromise(store.clear());
 }
 
 function placeholderSvg(label) {
