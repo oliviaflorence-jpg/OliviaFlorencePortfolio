@@ -9,67 +9,52 @@
   <body>
     <header class="hero">
       <div class="hero__content">
-        <p class="eyebrow">Portfolio Builder</p>
         <h1>Olivia Florence</h1>
         <p class="subtitle">
-          Drop in your work, edit the details, and drag cards to reorder your portfolio.
+          Digital Media Artist, nostalgia enthusiast, and lover of all things KISS.
         </p>
       </div>
     </header>
 
     <main class="container">
-      <section class="panel">
-        <h2>Add a project</h2>
-        <form id="project-form" class="form">
-          <label>
-            Title
-            <input id="title" name="title" required placeholder="Project title" />
-          </label>
-          <label>
-            Category
-            <input id="category" name="category" placeholder="Branding, UI, Illustration..." />
-          </label>
-          <label>
-            Description
-            <textarea
-              id="description"
-              name="description"
-              rows="4"
-              required
-              placeholder="Short description of the project..."
-            ></textarea>
-          </label>
-          <label>
-            Project URL
-            <input id="url" name="url" type="url" placeholder="https://example.com" />
-          </label>
-          <button type="submit">Add Project</button>
-        </form>
+      <section class="panel panel--about" id="about">
+        <h2>About</h2>
+        <p>
+          I am a digital media artist who works best in Procreate. My work reflects the things I love most in life: cartoons, sports, music, and nostalgia.
+        </p>
       </section>
 
-      <section class="panel">
-        <h2>Upload works</h2>
-        <p class="hint">Drag images here or click to select files.</p>
-        <label id="drop-zone" class="drop-zone" for="file-input">
-          <input id="file-input" type="file" accept="image/*" multiple />
-          <span>Drop files here</span>
-        </label>
-        <small>Images are saved in your browser for this device.</small>
-      </section>
-
-      <section class="portfolio-section">
+      <section class="portfolio-section" id="portfolio">
         <div class="portfolio-header">
-          <h2>Your Portfolio</h2>
-          <button id="clear-all" type="button" class="danger">Clear all</button>
+          <h2>My Portfolio</h2>
         </div>
-        <p class="hint">Drag cards to reorder. Click edit to update details.</p>
+        <p class="hint">Artwork is organized by category. Click an image to view it larger.</p>
         <div id="portfolio-grid" class="portfolio-grid" aria-live="polite"></div>
         <p id="empty-state" class="empty-state">No projects yet. Add your first one above.</p>
       </section>
+
+      <section class="panel panel--contact" id="contact">
+        <h2>Contact</h2>
+        <p>Let’s collaborate on your next project.</p>
+        <div class="contact-grid">
+          <a href="mailto:oliviaflorence968@gmail.com" class="contact-card">
+            <strong>Email</strong>
+            <span>oliviaflorence968@gmail.com</span>
+          </a>
+          <a href="https://www.instagram.com/midnightskiss1202_art?igsh_NTc4MTlwNjQ2YQ%ED%3D&utm_-source=qr" target="_blank" rel="noopener noreferrer" class="contact-card">
+            <strong>Instagram</strong>
+            <span>@midnightskiss1202_art</span>
+          </a>
+        </div>
+      </section>
     </main>
 
+    <footer class="site-footer">
+      <p>Designed and curated by Olivia Florence.</p>
+    </footer>
+
     <template id="card-template">
-      <article class="work-card" draggable="true">
+      <article class="work-card">
         <div class="work-card__image-wrap">
           <img class="work-card__image" alt="" />
         </div>
@@ -79,37 +64,22 @@
           <p class="work-card__description"></p>
           <a class="work-card__link" target="_blank" rel="noopener noreferrer">View Project</a>
         </div>
-        <div class="work-card__actions">
-          <button type="button" class="secondary edit-btn">Edit</button>
-          <button type="button" class="danger delete-btn">Delete</button>
-        </div>
       </article>
     </template>
 
-    <dialog id="edit-dialog">
-      <form id="edit-form" method="dialog" class="form">
-        <h3>Edit project</h3>
-        <label>
-          Title
-          <input id="edit-title" name="edit-title" required />
-        </label>
-        <label>
-          Category
-          <input id="edit-category" name="edit-category" />
-        </label>
-        <label>
-          Description
-          <textarea id="edit-description" name="edit-description" rows="4" required></textarea>
-        </label>
-        <label>
-          Project URL
-          <input id="edit-url" name="edit-url" type="url" />
-        </label>
-        <menu class="dialog-actions">
-          <button value="cancel" type="button" id="cancel-edit" class="secondary">Cancel</button>
-          <button value="default" type="submit">Save</button>
-        </menu>
-      </form>
+    <dialog id="preview-dialog">
+      <article class="preview-card">
+        <img id="preview-image" class="preview-image" alt="" />
+        <div class="preview-copy">
+          <p id="preview-category" class="work-card__category"></p>
+          <h3 id="preview-title"></h3>
+          <p id="preview-description"></p>
+          <a id="preview-link" target="_blank" rel="noopener noreferrer">View Project</a>
+        </div>
+      </article>
+      <menu class="dialog-actions">
+        <button value="cancel" type="button" id="close-preview" class="secondary">Close</button>
+      </menu>
     </dialog>
 
     <script src="script.js"></script>

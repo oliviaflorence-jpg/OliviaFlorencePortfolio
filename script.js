@@ -3,236 +3,103 @@ const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
 
-const form = document.getElementById("project-form");
 const grid = document.getElementById("portfolio-grid");
 const emptyState = document.getElementById("empty-state");
-const fileInput = document.getElementById("file-input");
-const dropZone = document.getElementById("drop-zone");
-const clearAllBtn = document.getElementById("clear-all");
 const cardTemplate = document.getElementById("card-template");
 
-const editDialog = document.getElementById("edit-dialog");
-const editForm = document.getElementById("edit-form");
-const cancelEdit = document.getElementById("cancel-edit");
-
-const editTitle = document.getElementById("edit-title");
-const editCategory = document.getElementById("edit-category");
-const editDescription = document.getElementById("edit-description");
-const editUrl = document.getElementById("edit-url");
+const previewDialog = document.getElementById("preview-dialog");
+const closePreview = document.getElementById("close-preview");
+const previewImage = document.getElementById("preview-image");
+const previewCategory = document.getElementById("preview-category");
+const previewTitle = document.getElementById("preview-title");
+const previewDescription = document.getElementById("preview-description");
+const previewLink = document.getElementById("preview-link");
 
 let works = loadWorks();
-let activeImage = "";
-let editingId = null;
 let dbPromise = null;
 
 render();
 hydrateImageUrls();
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const data = new FormData(form);
-
-  const work = {
-    id: crypto.randomUUID(),
-    title: `${data.get("title") || ""}`.trim(),
-    category: `${data.get("category") || ""}`.trim(),
-    description: `${data.get("description") || ""}`.trim(),
-    url: `${data.get("url") || ""}`.trim(),
-    image: activeImage,
-  };
-
-  works.unshift(work);
-  activeImage = "";
-  render();
-  saveWorks();
-  form.reset();
-});
-
-fileInput.addEventListener("change", (event) => {
-  void addFiles(event.target.files);
-  fileInput.value = "";
-});
-
-dropZone.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  dropZone.classList.add("drag-over");
-});
-
-dropZone.addEventListener("dragleave", () => {
-  dropZone.classList.remove("drag-over");
-});
-
-dropZone.addEventListener("drop", (event) => {
-  event.preventDefault();
-  dropZone.classList.remove("drag-over");
-  void addFiles(event.dataTransfer.files);
-});
-
-clearAllBtn.addEventListener("click", () => {
-  if (!works.length) return;
-  if (!window.confirm("Clear all projects?")) return;
-  works = [];
-  void clearAllImages();
-  render();
-  saveWorks();
-});
-
-cancelEdit.addEventListener("click", () => editDialog.close());
-
-editForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  if (!editingId) return;
-  const idx = works.findIndex((item) => item.id === editingId);
-  if (idx === -1) return;
-
-  works[idx] = {
-    ...works[idx],
-    title: editTitle.value.trim(),
-    category: editCategory.value.trim(),
-    description: editDescription.value.trim(),
-    url: editUrl.value.trim(),
-  };
-
-  render();
-  saveWorks();
-  editDialog.close();
-  editingId = null;
-});
-
-async function addFiles(fileList) {
-  if (!fileList || !fileList.length) return;
-  let added = false;
-
-  for (const file of Array.from(fileList)) {
-    if (!file.type.startsWith("image/")) continue;
-    const imageId = crypto.randomUUID();
-    try {
-      await saveImageFile(imageId, file);
-    } catch (error) {
-      console.error("Unable to store image:", error);
-      window.alert("Could not store one of your images. Please try a smaller file.");
-      continue;
-    }
-
-    const title = file.name.replace(/\.[^.]+$/, "");
-    const item = {
-      id: crypto.randomUUID(),
-      title: title || "Untitled work",
-      category: "Uploaded Work",
-      description: "Click edit to add project details.",
-      url: "",
-      imageId,
-    };
-
-    works.unshift(item);
-    added = true;
-  }
-
-  if (added) {
-    render();
-    saveWorks();
-    void hydrateImageUrls();
-  }
-}
+closePreview.addEventListener("click", () => previewDialog.close());
 
 function render() {
   grid.replaceChildren();
+  const groupedWorks = groupWorksByCategory(works);
 
-  works.forEach((work) => {
-    const card = cardTemplate.content.firstElementChild.cloneNode(true);
-    card.dataset.id = work.id;
+  groupedWorks.forEach(({ category, items }) => {
+    const section = document.createElement("section");
+    section.className = "category-group";
 
-    const image = card.querySelector(".work-card__image");
-    const category = card.querySelector(".work-card__category");
-    const title = card.querySelector(".work-card__title");
-    const description = card.querySelector(".work-card__description");
-    const link = card.querySelector(".work-card__link");
-    const deleteBtn = card.querySelector(".delete-btn");
-    const editBtn = card.querySelector(".edit-btn");
+    const heading = document.createElement("h3");
+    heading.className = "category-group__title";
+    heading.textContent = category;
+    section.append(heading);
 
-    image.src = work.imagePreviewUrl || work.image || placeholderSvg(work.title || "Work");
-    image.alt = work.title || "Portfolio work";
-    category.textContent = work.category || "Uncategorized";
-    title.textContent = work.title || "Untitled project";
-    description.textContent = work.description || "No description yet.";
+    const groupGrid = document.createElement("div");
+    groupGrid.className = "category-group__grid";
 
-    if (work.url) {
-      link.href = work.url;
-      link.hidden = false;
-    } else {
-      link.hidden = true;
-    }
+    items.forEach((work) => {
+      const card = cardTemplate.content.firstElementChild.cloneNode(true);
 
-    deleteBtn.addEventListener("click", () => {
-      if (work.imageId) {
-        void deleteImageFile(work.imageId);
+      const image = card.querySelector(".work-card__image");
+      const categoryLabel = card.querySelector(".work-card__category");
+      const title = card.querySelector(".work-card__title");
+      const description = card.querySelector(".work-card__description");
+      const link = card.querySelector(".work-card__link");
+
+      image.src = work.imagePreviewUrl || work.image || placeholderSvg(work.title || "Work");
+      image.alt = work.title || "Portfolio work";
+      categoryLabel.textContent = work.category || "Uncategorized";
+      title.textContent = work.title || "Untitled project";
+      description.textContent = work.description || "No description yet.";
+
+      if (work.url) {
+        link.href = work.url;
+        link.hidden = false;
+      } else {
+        link.hidden = true;
       }
-      works = works.filter((item) => item.id !== work.id);
-      render();
-      saveWorks();
+
+      image.addEventListener("click", () => openPreview(work));
+      groupGrid.append(card);
     });
 
-    editBtn.addEventListener("click", () => openEditDialog(work));
-
-    attachReorderHandlers(card);
-    grid.append(card);
+    section.append(groupGrid);
+    grid.append(section);
   });
 
   emptyState.hidden = works.length > 0;
 }
 
-function openEditDialog(work) {
-  editingId = work.id;
-  editTitle.value = work.title || "";
-  editCategory.value = work.category || "";
-  editDescription.value = work.description || "";
-  editUrl.value = work.url || "";
-  editDialog.showModal();
-}
-
-function attachReorderHandlers(card) {
-  card.addEventListener("dragstart", () => {
-    card.classList.add("dragging");
-  });
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    syncOrderFromDom();
-  });
-}
-
-grid.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  const activeCard = grid.querySelector(".dragging");
-  if (!activeCard) return;
-  const nextCard = getCardAfterPointer(event.clientY, event.clientX);
-  if (!nextCard) {
-    grid.append(activeCard);
+function openPreview(work) {
+  previewImage.src = work.imagePreviewUrl || work.image || placeholderSvg(work.title || "Work");
+  previewImage.alt = work.title || "Portfolio work";
+  previewCategory.textContent = work.category || "Uncategorized";
+  previewTitle.textContent = work.title || "Untitled project";
+  previewDescription.textContent = work.description || "No description yet.";
+  if (work.url) {
+    previewLink.href = work.url;
+    previewLink.hidden = false;
   } else {
-    grid.insertBefore(activeCard, nextCard);
+    previewLink.hidden = true;
   }
-});
-
-function getCardAfterPointer(y, x) {
-  const cards = [...grid.querySelectorAll(".work-card:not(.dragging)")];
-  let nearest = null;
-  let nearestOffset = Number.NEGATIVE_INFINITY;
-
-  cards.forEach((card) => {
-    const rect = card.getBoundingClientRect();
-    const offset = x - rect.left - rect.width / 2 + (y - rect.top - rect.height / 2) * 0.1;
-    if (offset < 0 && offset > nearestOffset) {
-      nearestOffset = offset;
-      nearest = card;
-    }
-  });
-
-  return nearest;
+  previewDialog.showModal();
 }
 
-function syncOrderFromDom() {
-  const orderedIds = [...grid.querySelectorAll(".work-card")].map((card) => card.dataset.id);
-  works.sort((a, b) => orderedIds.indexOf(a.id) - orderedIds.indexOf(b.id));
-  saveWorks();
+function groupWorksByCategory(items) {
+  const grouped = new Map();
+
+  items.forEach((item) => {
+    const label = item.category?.trim() || "Uncategorized";
+    const key = label.toLowerCase();
+    if (!grouped.has(key)) {
+      grouped.set(key, { category: label, items: [] });
+    }
+    grouped.get(key).items.push(item);
+  });
+
+  return [...grouped.values()].sort((a, b) => a.category.localeCompare(b.category));
 }
 
 function loadWorks() {
