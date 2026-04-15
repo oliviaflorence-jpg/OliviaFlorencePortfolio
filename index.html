@@ -28,6 +28,31 @@
         <div class="portfolio-header">
           <h2>My Portfolio</h2>
         </div>
+        <form id="add-work-form" class="panel form" autocomplete="off">
+          <label for="work-title">
+            Title
+            <input id="work-title" name="title" type="text" placeholder="Example: Betty Boop Fan Art" required />
+          </label>
+          <label for="work-category">
+            Category
+            <input id="work-category" name="category" type="text" placeholder="Example: Cartoons" />
+          </label>
+          <label for="work-description">
+            Description
+            <textarea
+              id="work-description"
+              name="description"
+              rows="3"
+              placeholder="Tell visitors about this piece..."
+              required
+            ></textarea>
+          </label>
+          <label for="work-image">
+            Image
+            <input id="work-image" name="image" type="file" accept="image/*" required />
+          </label>
+          <button type="submit">Add Artwork</button>
+        </form>
         <p class="hint">Artwork is organized by category. Click an image to view it larger.</p>
         <div id="portfolio-grid" class="portfolio-grid" aria-live="polite"></div>
         <p id="empty-state" class="empty-state">No projects yet. Add your first one above.</p>

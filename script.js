@@ -3,6 +3,8 @@ const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
 
+const addWorkForm = document.getElementById("add-work-form");
+const workImageInput = document.getElementById("work-image");
 const grid = document.getElementById("portfolio-grid");
 const emptyState = document.getElementById("empty-state");
 const cardTemplate = document.getElementById("card-template");
@@ -19,9 +21,10 @@ let works = loadWorks();
 let dbPromise = null;
 
 render();
-hydrateImageUrls();
+hydrateWorks();
 
 closePreview.addEventListener("click", () => previewDialog.close());
+addWorkForm.addEventListener("submit", handleAddWork);
 
 function render() {
   grid.replaceChildren();
@@ -72,6 +75,40 @@ function render() {
   emptyState.hidden = works.length > 0;
 }
 
+async function handleAddWork(event) {
+  event.preventDefault();
+  const formData = new FormData(addWorkForm);
+  const imageFile = workImageInput.files?.[0];
+
+  if (!imageFile) {
+    window.alert("Please choose an image file.");
+    return;
+  }
+
+  const imageId = crypto.randomUUID();
+  try {
+    await saveImageFile(imageId, imageFile);
+  } catch (error) {
+    console.error("Unable to store image file:", error);
+    window.alert("Could not save that image permanently. Please try a smaller file.");
+    return;
+  }
+
+  const work = {
+    id: crypto.randomUUID(),
+    title: `${formData.get("title") || ""}`.trim() || "Untitled project",
+    category: `${formData.get("category") || ""}`.trim() || "Uncategorized",
+    description: `${formData.get("description") || ""}`.trim() || "No description yet.",
+    imageId,
+    imagePreviewUrl: URL.createObjectURL(imageFile),
+  };
+
+  works.unshift(work);
+  saveWorks();
+  render();
+  addWorkForm.reset();
+}
+
 function openPreview(work) {
   previewImage.src = work.imagePreviewUrl || work.image || placeholderSvg(work.title || "Work");
   previewImage.alt = work.title || "Portfolio work";
@@ -112,26 +149,67 @@ function loadWorks() {
 
 function saveWorks() {
   try {
-    const serializableWorks = works.map(({ imagePreviewUrl, ...work }) => work);
+    const serializableWorks = works.map(({ imagePreviewUrl, image, ...work }) => {
+      // Keep metadata small in localStorage; image files are stored in IndexedDB.
+      if (typeof image === "string" && !image.startsWith("data:")) {
+        return { ...work, image };
+      }
+      return work;
+    });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableWorks));
   } catch (error) {
     console.error("Unable to save portfolio data:", error);
-    window.alert(
-      "Your browser storage is full, so this image can't be saved permanently. Try smaller images or clear some projects."
-    );
+    window.alert("Could not save portfolio details. Try shorter descriptions or fewer items.");
   }
 }
 
-async function hydrateImageUrls() {
+async function hydrateWorks() {
+  let changed = false;
+
   await Promise.all(
     works.map(async (work) => {
-      if (!work.imageId || work.imagePreviewUrl) return;
-      const blob = await getImageFile(work.imageId);
-      if (!blob) return;
-      work.imagePreviewUrl = URL.createObjectURL(blob);
+      if (work.imageId) {
+        const blob = await getImageFile(work.imageId);
+        if (!blob) return;
+        work.imagePreviewUrl = URL.createObjectURL(blob);
+        return;
+      }
+
+      if (typeof work.image === "string" && work.image.startsWith("data:")) {
+        try {
+          const migratedImageId = crypto.randomUUID();
+          const blob = dataUrlToBlob(work.image);
+          await saveImageFile(migratedImageId, blob);
+          work.imageId = migratedImageId;
+          delete work.image;
+          work.imagePreviewUrl = URL.createObjectURL(blob);
+          changed = true;
+        } catch (error) {
+          console.error("Could not migrate image to permanent storage:", error);
+        }
+      }
     })
   );
+
+  if (changed) {
+    saveWorks();
+  }
+
   render();
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [metadata, content] = dataUrl.split(",");
+  const mimeMatch = metadata.match(/data:(.*?);base64/);
+  const mimeType = mimeMatch?.[1] || "application/octet-stream";
+  const binary = atob(content);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return new Blob([bytes], { type: mimeType });
 }
 
 function getDatabase() {
