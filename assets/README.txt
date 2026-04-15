@@ -1,7 +1,3 @@
-Put your portfolio image files in this folder.
-
-Then update portfolio-items.json to point to each image file, for example:
-./assets/my-artwork.jpg
 IMG_5509.GIF
 IMG_6034.JPG
 IMG_6035.JPG
