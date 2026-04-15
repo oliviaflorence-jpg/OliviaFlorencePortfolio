@@ -1,4 +1,5 @@
 const STORAGE_KEY = "portfolio-items-v1";
+const HOSTED_ITEMS_PATH = "./portfolio-items.json";
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -20,11 +21,17 @@ const previewLink = document.getElementById("preview-link");
 let works = loadWorks();
 let dbPromise = null;
 
-render();
-hydrateWorks();
+void bootstrap();
 
 closePreview.addEventListener("click", () => previewDialog.close());
 addWorkForm.addEventListener("submit", handleAddWork);
+
+async function bootstrap() {
+  const hostedWorks = await loadHostedWorks();
+  works = mergeHostedAndLocalWorks(hostedWorks, works);
+  render();
+  await hydrateWorks();
+}
 
 function render() {
   grid.replaceChildren();
@@ -145,6 +152,51 @@ function loadWorks() {
   } catch {
     return [];
   }
+}
+
+async function loadHostedWorks() {
+  try {
+    const response = await fetch(HOSTED_ITEMS_PATH, { cache: "no-store" });
+    if (!response.ok) return [];
+    const data = await response.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .map((item, index) => normalizeHostedWork(item, index))
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function normalizeHostedWork(item, index) {
+  if (!item || typeof item !== "object") return null;
+  const image = typeof item.image === "string" ? item.image.trim() : "";
+  if (!image) return null;
+
+  return {
+    id: typeof item.id === "string" && item.id.trim() ? item.id.trim() : `hosted-${index + 1}`,
+    title: typeof item.title === "string" && item.title.trim() ? item.title.trim() : "Untitled project",
+    category:
+      typeof item.category === "string" && item.category.trim() ? item.category.trim() : "Uncategorized",
+    description:
+      typeof item.description === "string" && item.description.trim()
+        ? item.description.trim()
+        : "No description yet.",
+    image,
+    url: typeof item.url === "string" ? item.url.trim() : "",
+  };
+}
+
+function mergeHostedAndLocalWorks(hostedWorks, localWorks) {
+  const merged = [...hostedWorks];
+  const seenIds = new Set(hostedWorks.map((work) => work.id));
+
+  localWorks.forEach((work) => {
+    if (seenIds.has(work.id)) return;
+    merged.push(work);
+  });
+
+  return merged;
 }
 
 function saveWorks() {
