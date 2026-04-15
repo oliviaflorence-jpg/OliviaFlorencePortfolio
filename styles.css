@@ -330,6 +330,19 @@ dialog {
   margin: 0;
 }
 
+.preview-audio-label {
+  margin-top: 0.7rem;
+  color: var(--accent);
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#preview-audio {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
 .dialog-actions {
   display: flex;
   justify-content: flex-end;

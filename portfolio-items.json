@@ -45,6 +45,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"Sailing\" by Christopher Cross. Created using Procreate.",
     "image": "./assets/IMG_6038.JPG",
+    "audio": "./assets/audio/Sailing.mp3",
     "url": ""
   },
   {
@@ -53,6 +54,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"The Veldt\" by deadmau5 and Chris James. Created using Procreate.",
     "image": "./assets/IMG_6039.JPG",
+    "audio": "./assets/audio/The_Veldt.mp3",
     "url": ""
   },
   {
@@ -61,6 +63,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"Voyage to Atlantis\" by The Isley Brothers. Created using Procreate.",
     "image": "./assets/IMG_6040.JPG",
+    "audio": "./assets/audio/Voyage_to_Atlantis.mp3",
     "url": ""
   },
   {
@@ -69,6 +72,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"aquatic ambience\" by scizzie. Created using Procreate.",
     "image": "./assets/IMG_6041.JPG",
+    "audio": "./assets/audio/aquatic_ambience.mp3",
     "url": ""
   },
   {
@@ -77,6 +81,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"Badge and gun\" by Sunglasses Kid and Jonny Diggens.",
     "image": "./assets/IMG_6042.JPG",
+    "audio": "./assets/audio/Badge_and_gun.mp3",
     "url": ""
   },
   {
@@ -85,6 +90,7 @@
     "category": "Synesthesia",
     "description": "A 2D piece created in Procreate based on the song \"Night Swim\" by Sunglasses Kid and Myrone.",
     "image": "./assets/IMG_6043.JPG",
+    "audio": "./assets/audio/Night_Swim.mp3",
     "url": ""
   },
   {

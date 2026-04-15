@@ -16,6 +16,8 @@ const previewImage = document.getElementById("preview-image");
 const previewCategory = document.getElementById("preview-category");
 const previewTitle = document.getElementById("preview-title");
 const previewDescription = document.getElementById("preview-description");
+const previewAudioLabel = document.getElementById("preview-audio-label");
+const previewAudio = document.getElementById("preview-audio");
 const previewLink = document.getElementById("preview-link");
 
 let works = loadWorks();
@@ -24,6 +26,7 @@ let dbPromise = null;
 void bootstrap();
 
 closePreview.addEventListener("click", () => previewDialog.close());
+previewDialog.addEventListener("close", stopPreviewAudio);
 addWorkForm.addEventListener("submit", handleAddWork);
 
 async function bootstrap() {
@@ -122,6 +125,7 @@ function openPreview(work) {
   previewCategory.textContent = work.category || "Uncategorized";
   previewTitle.textContent = work.title || "Untitled project";
   previewDescription.textContent = work.description || "No description yet.";
+  configurePreviewAudio(work);
   if (work.url) {
     previewLink.href = work.url;
     previewLink.hidden = false;
@@ -129,6 +133,30 @@ function openPreview(work) {
     previewLink.hidden = true;
   }
   previewDialog.showModal();
+}
+
+function configurePreviewAudio(work) {
+  stopPreviewAudio();
+
+  if (!work.audio) {
+    previewAudio.hidden = true;
+    previewAudioLabel.hidden = true;
+    return;
+  }
+
+  previewAudio.src = work.audio;
+  previewAudio.hidden = false;
+  previewAudioLabel.hidden = false;
+  void previewAudio.play().catch(() => {
+    // Some browsers require pressing play manually.
+  });
+}
+
+function stopPreviewAudio() {
+  previewAudio.pause();
+  previewAudio.currentTime = 0;
+  previewAudio.removeAttribute("src");
+  previewAudio.load();
 }
 
 function groupWorksByCategory(items) {
@@ -183,6 +211,7 @@ function normalizeHostedWork(item, index) {
         ? item.description.trim()
         : "No description yet.",
     image,
+    audio: typeof item.audio === "string" ? item.audio.trim() : "",
     url: typeof item.url === "string" ? item.url.trim() : "",
   };
 }
