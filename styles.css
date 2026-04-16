@@ -57,6 +57,12 @@ h1 {
   color: var(--muted);
 }
 
+/* Hide legacy upload UI even if cached markup appears */
+#add-work-form,
+.drop-zone {
+  display: none !important;
+}
+
 
 .container {
   max-width: 960px;
