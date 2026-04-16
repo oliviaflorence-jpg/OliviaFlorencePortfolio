@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Die Nasty";
+  src: url("assets/fonts/die-nasty.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --bg: #12100f;
