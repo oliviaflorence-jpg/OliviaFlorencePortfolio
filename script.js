@@ -1,5 +1,6 @@
 const STORAGE_KEY = "portfolio-items-v1";
 const HOSTED_ITEMS_PATH = "./portfolio-items.json";
+const FALLBACK_AUDIO_PATH = "./assets/audio/Christopher Cross - Sailing (Official Audio).mp3";
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -145,12 +146,9 @@ function configurePreviewAudio(work) {
     return;
   }
 
-  previewAudio.src = audioSrc;
   previewAudio.hidden = false;
   previewAudioLabel.hidden = false;
-  void previewAudio.play().catch(() => {
-    // Some browsers require pressing play manually.
-  });
+  playPreviewAudio(audioSrc, { allowFallback: true });
 }
 
 function resolveWorkAudio(work) {
@@ -158,6 +156,21 @@ function resolveWorkAudio(work) {
     return work.audio.trim();
   }
   return "";
+}
+
+function playPreviewAudio(src, { allowFallback }) {
+  previewAudio.onerror = null;
+  previewAudio.src = src;
+  previewAudio.load();
+
+  previewAudio.onerror = () => {
+    if (!allowFallback || src === FALLBACK_AUDIO_PATH) return;
+    playPreviewAudio(FALLBACK_AUDIO_PATH, { allowFallback: false });
+  };
+
+  void previewAudio.play().catch(() => {
+    // Some browsers require pressing play manually.
+  });
 }
 
 function stopPreviewAudio() {
