@@ -7,6 +7,7 @@ const AUDIO_OVERRIDES_BY_ID = {
   "img-6048": "./assets/audio/Everything.mp3",
   "img-6049": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
   "img-6050": "./assets/audio/閉店後の滞在.mp3",
+  "img-6051": "./assets/audio/Izzy Perri & Sun City - Next to You.mp3",
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
 };
 const AUDIO_OVERRIDES_BY_IMAGE = {
@@ -17,6 +18,7 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_6048.jpg": "./assets/audio/Everything.mp3",
   "img_6049.jpg": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
   "img_6050.jpg": "./assets/audio/閉店後の滞在.mp3",
+  "img_6051.jpg": "./assets/audio/Izzy Perri & Sun City - Next to You.mp3",
   "img_6053.jpg": "./assets/audio/Kiss - Turn On The Night (Remastered).mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
 };
@@ -198,21 +200,18 @@ function getImageFileName(imagePath) {
 
 function playPreviewAudio(src) {
   const rawSrc = typeof src === "string" ? src.trim() : "";
-  const encodedSrc = encodeURI(rawSrc);
+  const candidates = buildAudioSourceCandidates(rawSrc);
+  let candidateIndex = 0;
 
   previewAudio.onerror = () => {
-    // Retry once with an encoded URL for filenames containing spaces/special characters.
-    if (previewAudio.dataset.retried !== "1" && encodedSrc && encodedSrc !== rawSrc) {
-      previewAudio.dataset.retried = "1";
-      previewAudio.src = encodedSrc;
-      previewAudio.load();
-      void previewAudio.play().catch(() => {});
-      return;
-    }
-    previewAudio.dataset.retried = "0";
+    candidateIndex += 1;
+    if (candidateIndex >= candidates.length) return;
+    previewAudio.src = candidates[candidateIndex];
+    previewAudio.load();
+    void previewAudio.play().catch(() => {});
   };
-  previewAudio.dataset.retried = "0";
-  previewAudio.src = rawSrc;
+
+  previewAudio.src = candidates[0] || "";
   previewAudio.load();
 
   void previewAudio.play().catch(() => {
@@ -221,11 +220,18 @@ function playPreviewAudio(src) {
 }
 
 function stopPreviewAudio() {
-  previewAudio.dataset.retried = "0";
+  previewAudio.onerror = null;
   previewAudio.pause();
   previewAudio.currentTime = 0;
   previewAudio.removeAttribute("src");
   previewAudio.load();
+}
+
+function buildAudioSourceCandidates(src) {
+  if (!src) return [""];
+  const noDotSlash = src.replace(/^\.\//, "");
+  const candidates = [src, encodeURI(src), noDotSlash, encodeURI(noDotSlash)];
+  return [...new Set(candidates.filter(Boolean))];
 }
 
 function groupWorksByCategory(items) {
