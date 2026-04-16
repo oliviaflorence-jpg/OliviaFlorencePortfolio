@@ -195,8 +195,22 @@ function getImageFileName(imagePath) {
 }
 
 function playPreviewAudio(src) {
-  previewAudio.onerror = null;
-  previewAudio.src = src;
+  const rawSrc = typeof src === "string" ? src.trim() : "";
+  const encodedSrc = encodeURI(rawSrc);
+
+  previewAudio.onerror = () => {
+    // Retry once with an encoded URL for filenames containing spaces/special characters.
+    if (previewAudio.dataset.retried !== "1" && encodedSrc && encodedSrc !== rawSrc) {
+      previewAudio.dataset.retried = "1";
+      previewAudio.src = encodedSrc;
+      previewAudio.load();
+      void previewAudio.play().catch(() => {});
+      return;
+    }
+    previewAudio.dataset.retried = "0";
+  };
+  previewAudio.dataset.retried = "0";
+  previewAudio.src = rawSrc;
   previewAudio.load();
 
   void previewAudio.play().catch(() => {
@@ -205,6 +219,7 @@ function playPreviewAudio(src) {
 }
 
 function stopPreviewAudio() {
+  previewAudio.dataset.retried = "0";
   previewAudio.pause();
   previewAudio.currentTime = 0;
   previewAudio.removeAttribute("src");
