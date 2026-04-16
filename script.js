@@ -1,6 +1,5 @@
 const STORAGE_KEY = "portfolio-items-v1";
 const HOSTED_ITEMS_PATH = "./portfolio-items.json";
-const FALLBACK_AUDIO_PATH = "./assets/audio/Christopher Cross - Sailing (Official Audio).mp3";
 const AUDIO_OVERRIDES_BY_ID = {
   "img-5509": "./assets/audio/Detroit Rock City.mp3",
   "img-6036": "./assets/audio/Kiss - Rock And Roll All Nite (Remastered).mp3",
@@ -157,7 +156,7 @@ function configurePreviewAudio(work) {
 
   previewAudio.hidden = false;
   previewAudioLabel.hidden = false;
-  playPreviewAudio(audioSrc, { allowFallback: true });
+  playPreviewAudio(audioSrc);
 }
 
 function resolveWorkAudio(work) {
@@ -184,15 +183,10 @@ function getImageFileName(imagePath) {
   return (fileName || "").trim().toLowerCase();
 }
 
-function playPreviewAudio(src, { allowFallback }) {
+function playPreviewAudio(src) {
   previewAudio.onerror = null;
   previewAudio.src = src;
   previewAudio.load();
-
-  previewAudio.onerror = () => {
-    if (!allowFallback || src === FALLBACK_AUDIO_PATH) return;
-    playPreviewAudio(FALLBACK_AUDIO_PATH, { allowFallback: false });
-  };
 
   void previewAudio.play().catch(() => {
     // Some browsers require pressing play manually.
