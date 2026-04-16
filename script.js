@@ -3,6 +3,7 @@ const HOSTED_ITEMS_PATH = "./portfolio-items.json";
 const AUDIO_OVERRIDES_BY_ID = {
   "img-5509": "./assets/audio/Detroit Rock City.mp3",
   "img-6036": "./assets/audio/Kiss - Rock And Roll All Nite (Remastered).mp3",
+  "img-6044": "./assets/audio/Where Are You Now.mp3",
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
 };
 const AUDIO_OVERRIDES_BY_IMAGE = {
