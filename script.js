@@ -42,6 +42,7 @@ const AUDIO_OVERRIDES_BY_TITLE = {
     "./assets/audio/Don't Be Afraid Of The Dark [w0YNPT6uprg].mp3",
   "shadow the hedgehog poster": "./assets/audio/The Midnight - Shadows (Official Audio).mp3",
   "kiss cards tattoo": "./assets/audio/Shock Me.mp3",
+  "ozzy osbourne bat tattoo design": "./assets/audio/Ozzy Osbourne - No More Tears.mp3",
 };
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
