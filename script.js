@@ -14,6 +14,7 @@ const AUDIO_OVERRIDES_BY_ID = {
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
   "shadow-hedgehog-poster": "./assets/audio/The Midnight - Shadows (Official Audio).mp3",
   "img-6054": "./assets/audio/Shock Me.mp3",
+  "ozzy-bat-tattoo-design": "./assets/audio/Ozzy Osbourne - No More Tears.mp3",
 };
 const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_5509.gif": "./assets/audio/Detroit Rock City.mp3",
@@ -31,6 +32,7 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_6054.jpg": "./assets/audio/Shock Me.mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
   "shadow_the_hedgehog_poster.jpg": "./assets/audio/The Midnight - Shadows (Official Audio).mp3",
+  "ozzy_bat_tattoo_design.jpg": "./assets/audio/Ozzy Osbourne - No More Tears.mp3",
 };
 const AUDIO_OVERRIDES_BY_TITLE = {
   "echoes promotional poster": "./assets/audio/Comfortably Numb.mp3",
