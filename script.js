@@ -37,7 +37,9 @@ void bootstrap();
 
 closePreview.addEventListener("click", () => previewDialog.close());
 previewDialog.addEventListener("close", stopPreviewAudio);
-addWorkForm.addEventListener("submit", handleAddWork);
+if (addWorkForm) {
+  addWorkForm.addEventListener("submit", handleAddWork);
+}
 
 async function bootstrap() {
   const hostedWorks = await loadHostedWorks();
