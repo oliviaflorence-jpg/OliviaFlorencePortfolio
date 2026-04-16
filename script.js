@@ -1,6 +1,5 @@
 const STORAGE_KEY = "portfolio-items-v1";
 const HOSTED_ITEMS_PATH = "./portfolio-items.json";
-const DEFAULT_PREVIEW_AUDIO = "./assets/audio/Christopher Cross - Sailing (Official Audio).mp3";
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -158,7 +157,7 @@ function resolveWorkAudio(work) {
   if (typeof work.audio === "string" && work.audio.trim()) {
     return work.audio.trim();
   }
-  return DEFAULT_PREVIEW_AUDIO;
+  return "";
 }
 
 function stopPreviewAudio() {
