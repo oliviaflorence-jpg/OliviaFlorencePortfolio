@@ -30,6 +30,10 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
 };
 const AUDIO_OVERRIDES_BY_TITLE = {
   "echoes promotional poster": "./assets/audio/Comfortably Numb.mp3",
+  "olive oyl’s mixtape playlist thumbnail":
+    "./assets/audio/Don't Be Afraid Of The Dark [w0YNPT6uprg].mp3",
+  "olive oyl's mixtape playlist thumbnail":
+    "./assets/audio/Don't Be Afraid Of The Dark [w0YNPT6uprg].mp3",
 };
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
