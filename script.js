@@ -230,8 +230,24 @@ function stopPreviewAudio() {
 function buildAudioSourceCandidates(src) {
   if (!src) return [""];
   const noDotSlash = src.replace(/^\.\//, "");
-  const candidates = [src, encodeURI(src), noDotSlash, encodeURI(noDotSlash)];
+  const strictEncodedSrc = encodePathPreservingSlashes(src);
+  const strictEncodedNoDotSlash = encodePathPreservingSlashes(noDotSlash);
+  const candidates = [
+    src,
+    encodeURI(src),
+    strictEncodedSrc,
+    noDotSlash,
+    encodeURI(noDotSlash),
+    strictEncodedNoDotSlash,
+  ];
   return [...new Set(candidates.filter(Boolean))];
+}
+
+function encodePathPreservingSlashes(path) {
+  return path
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
 }
 
 function groupWorksByCategory(items) {
