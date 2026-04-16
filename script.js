@@ -8,6 +8,7 @@ const AUDIO_OVERRIDES_BY_ID = {
   "img-6049": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
   "img-6050": "./assets/audio/閉店後の滞在.mp3",
   "img-6051": "./assets/audio/Izzy Perri & Sun City - Next to You.mp3",
+  "img-6045": "./assets/audio/The Equaliser (Not Alone).mp3",
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
 };
 const AUDIO_OVERRIDES_BY_IMAGE = {
@@ -19,6 +20,7 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_6049.jpg": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
   "img_6050.jpg": "./assets/audio/閉店後の滞在.mp3",
   "img_6051.jpg": "./assets/audio/Izzy Perri & Sun City - Next to You.mp3",
+  "img_6045.jpg": "./assets/audio/The Equaliser (Not Alone).mp3",
   "img_6053.jpg": "./assets/audio/Kiss - Turn On The Night (Remastered).mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
 };
