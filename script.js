@@ -6,6 +6,7 @@ const AUDIO_OVERRIDES_BY_ID = {
   "img-6044": "./assets/audio/Where Are You Now.mp3",
   "img-6048": "./assets/audio/Everything.mp3",
   "img-6049": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
+  "img-6050": "./assets/audio/閉店後の滞在.mp3",
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
 };
 const AUDIO_OVERRIDES_BY_IMAGE = {
@@ -15,6 +16,7 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_6037.jpg": "./assets/audio/Johnny Cash - The Ballad of Boot Hill (Official Audio).mp3",
   "img_6048.jpg": "./assets/audio/Everything.mp3",
   "img_6049.jpg": "./assets/audio/Eagles - Hotel California (Official Audio).mp3",
+  "img_6050.jpg": "./assets/audio/閉店後の滞在.mp3",
   "img_6053.jpg": "./assets/audio/Kiss - Turn On The Night (Remastered).mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
 };
