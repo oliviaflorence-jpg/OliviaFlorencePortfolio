@@ -248,7 +248,7 @@ function buildAudioSourceCandidates(src) {
 function encodePathPreservingSlashes(path) {
   return path
     .split("/")
-    .map((segment) => encodeURIComponent(segment))
+    .map((segment) => encodeURIComponent(segment).replace(/[!'()*]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`))
     .join("/");
 }
 
