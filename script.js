@@ -1,6 +1,10 @@
 const STORAGE_KEY = "portfolio-items-v1";
 const HOSTED_ITEMS_PATH = "./portfolio-items.json";
 const FALLBACK_AUDIO_PATH = "./assets/audio/Christopher Cross - Sailing (Official Audio).mp3";
+const AUDIO_OVERRIDES_BY_ID = {
+  "img-6036": "./assets/audio/Kiss - Rock And Roll All Nite (Remastered).mp3",
+  "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
+};
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -152,6 +156,9 @@ function configurePreviewAudio(work) {
 }
 
 function resolveWorkAudio(work) {
+  if (typeof work.id === "string" && AUDIO_OVERRIDES_BY_ID[work.id]) {
+    return AUDIO_OVERRIDES_BY_ID[work.id];
+  }
   if (typeof work.audio === "string" && work.audio.trim()) {
     return work.audio.trim();
   }
