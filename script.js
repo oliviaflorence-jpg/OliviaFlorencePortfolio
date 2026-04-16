@@ -6,6 +6,9 @@ const AUDIO_OVERRIDES_BY_ID = {
   "img-6036": "./assets/audio/Kiss - Rock And Roll All Nite (Remastered).mp3",
   "img-6046": "./assets/audio/OutKast -  ATLiens  (HQ).mp3",
 };
+const AUDIO_OVERRIDES_BY_IMAGE = {
+  "img_5509.gif": "./assets/audio/Detroit Rock City.mp3",
+};
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -160,10 +163,24 @@ function resolveWorkAudio(work) {
   if (typeof work.id === "string" && AUDIO_OVERRIDES_BY_ID[work.id]) {
     return AUDIO_OVERRIDES_BY_ID[work.id];
   }
+
+  const imageName = getImageFileName(work.image);
+  if (imageName && AUDIO_OVERRIDES_BY_IMAGE[imageName]) {
+    return AUDIO_OVERRIDES_BY_IMAGE[imageName];
+  }
+
   if (typeof work.audio === "string" && work.audio.trim()) {
     return work.audio.trim();
   }
   return "";
+}
+
+function getImageFileName(imagePath) {
+  if (typeof imagePath !== "string") return "";
+  const cleanPath = imagePath.split("?")[0].split("#")[0];
+  const segments = cleanPath.split("/");
+  const fileName = segments[segments.length - 1];
+  return (fileName || "").trim().toLowerCase();
 }
 
 function playPreviewAudio(src, { allowFallback }) {
