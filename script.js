@@ -26,6 +26,9 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_6053.jpg": "./assets/audio/Kiss - Turn On The Night (Remastered).mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
 };
+const AUDIO_OVERRIDES_BY_TITLE = {
+  "echoes promotional poster": "./assets/audio/Comfortably Numb.mp3",
+};
 const DB_NAME = "portfolio-media-db";
 const DB_VERSION = 1;
 const IMAGE_STORE = "portfolio-images";
@@ -188,10 +191,20 @@ function resolveWorkAudio(work) {
     return AUDIO_OVERRIDES_BY_IMAGE[imageName];
   }
 
+  const titleKey = getTitleKey(work.title);
+  if (titleKey && AUDIO_OVERRIDES_BY_TITLE[titleKey]) {
+    return AUDIO_OVERRIDES_BY_TITLE[titleKey];
+  }
+
   if (typeof work.audio === "string" && work.audio.trim()) {
     return work.audio.trim();
   }
   return "";
+}
+
+function getTitleKey(title) {
+  if (typeof title !== "string") return "";
+  return title.trim().toLowerCase();
 }
 
 function getImageFileName(imagePath) {
