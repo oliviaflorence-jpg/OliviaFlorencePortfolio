@@ -9,6 +9,7 @@ const AUDIO_OVERRIDES_BY_IMAGE = {
   "img_5509.gif": "./assets/audio/Detroit Rock City.mp3",
   "img_6034.jpg": "./assets/audio/2,000 Man.mp3",
   "img_6035.jpg": "./assets/audio/Fractured Mirror.mp3",
+  "img_6037.jpg": "./assets/audio/Johnny Cash - The Ballad of Boot Hill (Official Audio).mp3",
   "img_6053.jpg": "./assets/audio/Kiss - Turn On The Night (Remastered).mp3",
   "magik_touch_logo.jpg": "./assets/audio/Magic Touch.mp3",
 };
