@@ -3,9 +3,7 @@
   src:
     local("Die Nasty"),
     local("DieNasty-Regular"),
-    url("assets/fonts/die-nasty.woff2?v=3") format("woff2"),
-    url("assets/fonts/die-nasty.woff?v=3") format("woff"),
-    url("assets/fonts/die-nasty.ttf?v=3") format("truetype");
+    url("assets/fonts/Die%20Nasty%20copy.otf?v=4") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
